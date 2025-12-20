@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whack a Mole</title>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle,#232526,#414345);
+    font-family:Arial, sans-serif;
+    color:#fff;
+}
+.container{
+    width:95%;
+    max-width:380px;
+    text-align:center;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin:15px 0;
+}
+.hole{
+    height:90px;
+    background:#000;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:34px;
+    cursor:pointer;
+}
+.stats{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0;
+    font-size:16px;
+}
+
+/* ✅ STANDARD BUTTON */
+.but{
+    padding:10px 22px;
+    margin:6px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(135deg,#ff9800,#ff5722);
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+.but:hover{transform:scale(1.05);opacity:.9}
+.but:active{transform:scale(.95)}
+
+.footer{
+    margin-top:15px;
+    font-size:12px;
+    opacity:.8;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title">Whack a Mole</h1>
+    <p id="how">Tap the mole 🐹 before it disappears. 30 seconds only.</p>
+    <button class="but" id="startBtn">Start Game</button>
+
+    <div id="game" style="display:none">
+        <div class="stats">
+            <span id="score">Score: 0</span>
+            <span id="time">Time: 30</span>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <div>
+            <button class="but" onclick="restart()">Restart</button>
+            <button class="but" onclick="home()">Home</button>
+        </div>
+    </div>
+
+    <div class="footer">this_is_naitik_gupta</div>
+</div>
+
+<script>
+let score = 0;
+let timeLeft = 30;
+let holes = [];
+let moleIndex = -1;
+let moleTimer, gameTimer;
+
+const grid = document.getElementById("grid");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+
+document.getElementById("startBtn").onclick = () => {
+    title.style.display = "none";
+    how.style.display = "none";
+    startBtn.style.display = "none";
+    game.style.display = "block";
+    restart();
+};
+
+function restart(){
+    clearInterval(moleTimer);
+    clearInterval(gameTimer);
+
+    score = 0;
+    timeLeft = 30;
+    scoreEl.textContent = "Score: 0";
+    timeEl.textContent = "Time: 30";
+
+    grid.innerHTML = "";
+    holes = [];
+
+    for(let i=0;i<9;i++){
+        const h = document.createElement("div");
+        h.className = "hole";
+        h.onclick = () => hit(i);
+        grid.appendChild(h);
+        holes.push(h);
+    }
+
+    moleTimer = setInterval(showMole, 800);
+    gameTimer = setInterval(countdown, 1000);
+}
+
+function showMole(){
+    if(moleIndex !== -1){
+        holes[moleIndex].textContent = "";
+    }
+    moleIndex = Math.floor(Math.random()*9);
+    holes[moleIndex].textContent = "🐹";
+}
+
+function hit(i){
+    if(i === moleIndex){
+        score++;
+        scoreEl.textContent = "Score: " + score;
+        holes[moleIndex].textContent = "";
+        moleIndex = -1;
+    }
+}
+
+function countdown(){
+    timeLeft--;
+    timeEl.textContent = "Time: " + timeLeft;
+    if(timeLeft <= 0){
+        clearInterval(moleTimer);
+        clearInterval(gameTimer);
+        if(moleIndex !== -1){
+            holes[moleIndex].textContent = "";
+        }
+        alert("Time Up! Your Score: " + score);
+    }
+}
+
+function home(){
+    location.href = "../index.html";
+}
+</script>
+</body>
+</html>

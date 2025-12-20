@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schulte Table Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #b3e4a2, #86c5f5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-top: 30px;
+            text-align: center;
+            color: #222;
+        }
+
+        .note {
+            background: #f0f0f0;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            margin: 20px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        td {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #222;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            font-size: 1.5em;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(135deg, #a8b48e, #89a4c3);
+        }
+
+        td:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #888;
+        }
+
+        footer {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        footer a {
+            color: #0077cc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Disarrangment Table</h1>
+
+    <div class="note">
+        This is a <strong>mind-sharpening Schulte Table game</strong>!<br>
+        Your goal is to say only colour on which the letter was written rather than its written color from 1 to 25 in
+        order as
+        fast as possible.<br>
+        Sharpen your attention and speed by saying as fast you can.
+    </div>
+
+    <table>
+        <tr>
+            <td class="d1"></td>
+            <td class="d2"></td>
+            <td class="d3"></td>
+            <td class="d4"></td>
+            <td class="d5"></td>
+        </tr>
+        <tr>
+            <td class="d6"></td>
+            <td class="d7"></td>
+            <td class="d8"></td>
+            <td class="d9"></td>
+            <td class="d10"></td>
+        </tr>
+        <tr>
+            <td class="d11"></td>
+            <td class="d12"></td>
+            <td class="d13"></td>
+            <td class="d14"></td>
+            <td class="d15"></td>
+        </tr>
+        <tr>
+            <td class="d16"></td>
+            <td class="d17"></td>
+            <td class="d18"></td>
+            <td class="d19"></td>
+            <td class="d20"></td>
+        </tr>
+        <tr>
+            <td class="d21"></td>
+            <td class="d22"></td>
+            <td class="d23"></td>
+            <td class="d24"></td>
+            <td class="d25"></td>
+        </tr>
+    </table>
+
+    <footer>
+        Created by <strong>Naitik Gupta</strong> | Follow me on Instagram:
+        <a href="https://www.instagram.com/this_is_naitik_gupta" target="_blank">@this_is_naitik_gupta</a>
+    </footer>
+
+    <script src="game3.js"></script>
+</body>
+
+</html>

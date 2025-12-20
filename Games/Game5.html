@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1d2671, #c33764);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.container {
+    width: 95%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+#how {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background: #00e5ff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.game {
+    display: none;
+    margin-top: 20px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.cell {
+    background: rgba(255,255,255,0.15);
+    height: 90px;
+    font-size: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.cell:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+#status {
+    margin-top: 15px;
+    font-size: 18px;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title">Tic Tac Toe</h1>
+    <p id="how">Tap a box to place X. Computer plays O. First to align 3 wins.</p>
+    <button id="startBtn">Start Game</button>
+
+    <div class="game" id="game">
+        <div class="board" id="board"></div>
+        <div id="status"></div>
+    </div>
+
+    <div class="footer">this_is_naitik_gupta</div>
+</div>
+
+<script>
+const boardEl = document.getElementById("board");
+const statusEl = document.getElementById("status");
+const gameEl = document.getElementById("game");
+const startBtn = document.getElementById("startBtn");
+const title = document.getElementById("title");
+const how = document.getElementById("how");
+
+let board = ["","","","","","","","",""];
+let gameOver = false;
+
+startBtn.onclick = () => {
+    title.style.display = "none";
+    how.style.display = "none";
+    startBtn.style.display = "none";
+    gameEl.style.display = "block";
+    drawBoard();
+};
+
+function drawBoard() {
+    boardEl.innerHTML = "";
+    board.forEach((cell, i) => {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.innerText = cell;
+        div.onclick = () => playerMove(i);
+        boardEl.appendChild(div);
+    });
+}
+
+function playerMove(i) {
+    if (board[i] || gameOver) return;
+    board[i] = "X";
+    checkWinner();
+    computerMove();
+    drawBoard();
+}
+
+function computerMove() {
+    if (gameOver) return;
+    const empty = board.map((v,i)=>v===""?i:null).filter(v=>v!==null);
+    if (empty.length === 0) return;
+    const move = empty[Math.floor(Math.random()*empty.length)];
+    board[move] = "O";
+    checkWinner();
+}
+
+function checkWinner() {
+    const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    wins.forEach(w => {
+        const [a,b,c] = w;
+        if (board[a] && board[a]===board[b] && board[b]===board[c]) {
+            statusEl.innerText = board[a] + " Wins!";
+            gameOver = true;
+        }
+    });
+}
+</script>
+</body>
+</html>

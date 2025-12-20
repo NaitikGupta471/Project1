@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini RPG Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            text-align: center;
+            background: linear-gradient(135deg, #f0f8ff, #ffe4e1, #fffacd, #e6e6fa);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        header {
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 9999;
+        }
+
+        .instructions {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        .difficulty {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty button,
+        #startBtn {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        .difficulty button:hover,
+        #startBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #startBtn {
+            display: none;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .actions button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 0 5px #aaa;
+            font-weight: bold;
+        }
+
+        .actions button:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+
+        #message {
+            margin-top: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+            box-shadow: 0 0 5px #aaa;
+        }
+
+        .controls button:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        a {
+            color: #ff6ec7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>Mini RPG Battle</header>
+
+    <div id="startScreen">
+        <div class="instructions">Click “Attack” to battle the enemy!<br>Choose difficulty to start.</div>
+        <div class="difficulty">
+            <button onclick="selectDifficulty('easy')">Easy</button>
+            <button onclick="selectDifficulty('medium')">Medium</button>
+            <button onclick="selectDifficulty('hard')">Hard</button>
+        </div>
+        <button id="startBtn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameArea" style="display:none;">
+        <div class="status">
+            <div id="playerStatus">Player HP: 100</div>
+            <div id="enemyStatus">Enemy HP: 100</div>
+        </div>
+        <div class="actions">
+            <button onclick="attack()">Attack</button>
+        </div>
+        <div id="message"></div>
+        <div class="controls">
+            <button onclick="restartGame()">Restart Game</button>
+            <button onclick="backToHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <footer>
+        Follow me on Instagram: <a href="https://www.instagram.com/this_is_naitik_gupta"
+            target="_blank">@this_is_naitik_gupta</a>
+    </footer>
+
+    <script>
+        let difficulty = '';
+        let playerHP = 100;
+        let enemyHP = 100;
+
+        function selectDifficulty(level) {
+            difficulty = level;
+            document.getElementById('startBtn').style.display = 'inline-block';
+        }
+
+        function startGame() {
+            if (!difficulty) return;
+            playerHP = 100;
+            switch (difficulty) {
+                case 'easy': enemyHP = 80; break;
+                case 'medium': enemyHP = 100; break;
+                case 'hard': enemyHP = 120; break;
+            }
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            updateStatus();
+            document.getElementById('message').textContent = "Battle started! Click Attack!";
+        }
+
+        function attack() {
+            if (playerHP <= 0 || enemyHP <= 0) return;
+            // Random damage
+            let playerDamage = Math.floor(Math.random() * 20) + 5;
+            let enemyDamage = Math.floor(Math.random() * 15) + 5;
+
+            enemyHP -= playerDamage;
+            if (enemyHP < 0) enemyHP = 0;
+
+            playerHP -= enemyDamage;
+            if (playerHP < 0) playerHP = 0;
+
+            updateStatus();
+
+            if (playerHP <= 0 && enemyHP <= 0) {
+                document.getElementById('message').textContent = "Draw! Both defeated!";
+            } else if (enemyHP <= 0) {
+                document.getElementById('message').textContent = `You won! Dealt ${playerDamage} damage.`;
+            } else if (playerHP <= 0) {
+                document.getElementById('message').textContent = `You lost! Took ${enemyDamage} damage.`;
+            } else {
+                document.getElementById('message').textContent = `You dealt ${playerDamage}, Enemy dealt ${enemyDamage}.`;
+            }
+        }
+
+        function updateStatus() {
+            document.getElementById('playerStatus').textContent = `Player HP: ${playerHP}`;
+            document.getElementById('enemyStatus').textContent = `Enemy HP: ${enemyHP}`;
+        }
+
+        function restartGame() {
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('message').textContent = '';
+        }
+
+        function backToHome() {
+            window.location.href = "../index.html";
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ccefff, #e0b0ff, #ffe4e1, #fffacd);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        #startScreen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 50px;
+        }
+
+        .difficulty button,
+        #startBtn {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        .difficulty button:hover,
+        #startBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #startBtn {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #gameArea {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        #computerGuess {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        button.controlBtn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 0 5px #aaa;
+            font-weight: bold;
+        }
+
+        button.controlBtn:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        a {
+            color: #ff6ec7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>Guess the Number</header>
+
+    <div id="startScreen">
+        <div class="instructions">Think of a number between 1 and 100.<br>Choose difficulty to start:</div>
+        <div class="difficulty">
+            <button onclick="selectDifficulty('easy')">Easy</button>
+            <button onclick="selectDifficulty('medium')">Medium</button>
+            <button onclick="selectDifficulty('hard')">Hard</button>
+        </div>
+        <button id="startBtn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameArea">
+        <div id="computerGuess">Computer's Guess: -</div>
+        <div>
+            <button class="controlBtn" onclick="userHint('higher')">Higher ↑</button>
+            <button class="controlBtn" onclick="userHint('correct')">Correct ✅</button>
+            <button class="controlBtn" onclick="userHint('lower')">Lower ↓</button>
+        </div>
+        <div>Attempts: <span id="attempts">0</span></div>
+        <div class="controls">
+            <button class="controlBtn" onclick="restartGame()">Restart Game</button>
+            <button class="controlBtn" onclick="backToHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <footer>
+        Follow me on Instagram: <a href="https://www.instagram.com/this_is_naitik_gupta"
+            target="_blank">@this_is_naitik_gupta</a>
+    </footer>
+
+    <script>
+        let difficulty = '';
+        let startBtn = document.getElementById('startBtn');
+        let gameArea = document.getElementById('gameArea');
+        let guessDisplay = document.getElementById('computerGuess');
+        let attemptsDisplay = document.getElementById('attempts');
+
+        let minNum = 1, maxNum = 100, currentGuess = 0, attempts = 0;
+        let guessTimeout = null;
+        let delay = 1000; // default easy
+
+        function selectDifficulty(level) {
+            difficulty = level;
+            startBtn.style.display = 'inline-block';
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameArea.style.display = 'flex';
+            minNum = 1; maxNum = 100; attempts = 0;
+            attemptsDisplay.textContent = attempts;
+            // set delay based on difficulty
+            switch (difficulty) {
+                case 'easy': delay = 1000; break;
+                case 'medium': delay = 500; break;
+                case 'hard': delay = 200; break;
+            }
+            makeGuess();
+        }
+
+        function makeGuess() {
+            currentGuess = Math.floor((minNum + maxNum) / 2);
+            guessDisplay.textContent = `Computer's Guess: ${currentGuess}`;
+            attempts++;
+            attemptsDisplay.textContent = attempts;
+        }
+
+        function userHint(hint) {
+            if (hint === 'higher') {
+                minNum = currentGuess + 1;
+                if (minNum > maxNum) { alert('Hmm, seems inconsistent!'); return; }
+                setTimeout(makeGuess, delay);
+            } else if (hint === 'lower') {
+                maxNum = currentGuess - 1;
+                if (maxNum < minNum) { alert('Hmm, seems inconsistent!'); return; }
+                setTimeout(makeGuess, delay);
+            } else if (hint === 'correct') {
+                alert(`Computer guessed your number ${currentGuess} in ${attempts} attempts!`);
+            }
+        }
+
+        function restartGame() {
+            clearTimeout(guessTimeout);
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            startBtn.style.display = 'none';
+            minNum = 1; maxNum = 100; attempts = 0;
+            attemptsDisplay.textContent = attempts;
+            guessDisplay.textContent = "Computer's Guess: -";
+        }
+
+        function backToHome() { window.location.href = "../index.html"; }
+    </script>
+
+</body>
+
+</html>

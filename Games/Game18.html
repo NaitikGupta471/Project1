@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0b0b0b;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        canvas {
+            background: #000;
+            border: 2px solid #fff;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        /* STANDARD BUTTON */
+        .but {
+            padding: 10px 22px;
+            margin: 6px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #4caf50, #00c853);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .but:hover {
+            transform: scale(1.05)
+        }
+
+        .but:active {
+            transform: scale(.95)
+        }
+
+        .footer {
+            font-size: 12px;
+            margin-top: 10px;
+            opacity: .8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="title">Pong</h1>
+        <p id="how">Move paddle and beat the AI.</p>
+
+        <div id="difficulty">
+            <button class="but" onclick="startGame('easy')">Easy</button>
+            <button class="but" onclick="startGame('medium')">Medium</button>
+            <button class="but" onclick="startGame('hard')">Hard</button>
+        </div>
+
+        <div id="game" style="display:none">
+            <canvas id="c" width="360" height="240"></canvas>
+            <div>
+                <button class="but" onclick="restart()">Restart</button>
+                <button class="but" onclick="home()">Home</button>
+            </div>
+        </div>
+
+        <div class="footer">this_is_naitik_gupta</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("c");
+        const ctx = canvas.getContext("2d");
+        const title = document.getElementById("title");
+        const how = document.getElementById("how");
+        const difficulty = document.getElementById("difficulty");
+        const game = document.getElementById("game");
+
+        let player, ai, ball, loop;
+        let ballSpeed = 3;
+        let aiSpeed = 3;
+
+        function startGame(level) {
+            if (level === "easy") { ballSpeed = 2.5; aiSpeed = 3; }
+            if (level === "medium") { ballSpeed = 3.5; aiSpeed = 4; }
+            if (level === "hard") { ballSpeed = 4.5; aiSpeed = 5; }
+
+            title.style.display = "none";
+            how.style.display = "none";
+            difficulty.style.display = "none";
+            game.style.display = "block";
+
+            restart();
+        }
+
+        function restart() {
+            clearInterval(loop);
+
+            player = { x: 10, y: 90, w: 8, h: 60 };
+            ai = { x: 342, y: 90, w: 8, h: 60 };
+            ball = { x: 180, y: 120, r: 5, dx: ballSpeed, dy: ballSpeed };
+
+            loop = setInterval(update, 16);
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, 360, 240);
+
+            // DRAW
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            ctx.fillRect(ai.x, ai.y, ai.w, ai.h);
+
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // BALL MOVE
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            if (ball.y < ball.r || ball.y > 240 - ball.r) ball.dy *= -1;
+
+            // PLAYER HIT
+            if (ball.x - ball.r <= player.x + player.w &&
+                ball.y > player.y &&
+                ball.y < player.y + player.h) {
+                ball.dx = Math.abs(ball.dx);
+            }
+
+            // AI HIT
+            if (ball.x + ball.r >= ai.x &&
+                ball.y > ai.y &&
+                ball.y < ai.y + ai.h) {
+                ball.dx = -Math.abs(ball.dx);
+            }
+
+            // 🧠 SMART AI
+            let aiCenter = ai.y + ai.h / 2;
+            let diff = ball.y - aiCenter;
+
+            // AI moves toward ball capped by aiSpeed
+            ai.y += Math.sign(diff) * Math.min(Math.abs(diff), aiSpeed);
+
+            // Keep AI inside canvas
+            ai.y = Math.max(0, Math.min(240 - ai.h, ai.y));
+
+            // RESET POINT
+            if (ball.x < 0 || ball.x > 360) {
+                restart();
+            }
+        }
+
+        // PLAYER CONTROL
+        canvas.addEventListener("mousemove", e => {
+            const r = canvas.getBoundingClientRect();
+            player.y = e.clientY - r.top - player.h / 2;
+            player.y = Math.max(0, Math.min(240 - player.h, player.y));
+        });
+        canvas.addEventListener("touchmove", e => {
+            const r = canvas.getBoundingClientRect();
+            player.y = e.touches[0].clientY - r.top - player.h / 2;
+            player.y = Math.max(0, Math.min(240 - player.h, player.y));
+        });
+
+        function home() { window.location.href = "../index.html"; }
+    </script>
+</body>
+
+</html>

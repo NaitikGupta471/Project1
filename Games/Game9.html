@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game</title>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#000;
+    font-family:Arial,sans-serif;
+    color:#0f0;
+}
+.container{
+    width:95%;
+    max-width:420px;
+    text-align:center;
+}
+canvas{
+    background:#111;
+    border:2px solid #0f0;
+    width:100%;
+    max-width:300px;
+    height:auto;
+}
+.stats{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0;
+}
+
+/* STANDARD BUTTON */
+.but{
+    padding:10px 22px;
+    margin:6px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(135deg,#ff9800,#ff5722);
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+.but:hover{transform:scale(1.05);opacity:.9}
+.but:active{transform:scale(.95)}
+
+.controls{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+    margin-top:10px;
+}
+.footer{
+    margin-top:12px;
+    font-size:12px;
+    opacity:.8;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title">Snake</h1>
+    <p id="how">Choose difficulty. Eat food 🍎, avoid walls & yourself.</p>
+
+    <!-- Difficulty Buttons -->
+    <div id="difficulty">
+        <button class="but" onclick="startGame(200)">Easy</button>
+        <button class="but" onclick="startGame(150)">Medium</button>
+        <button class="but" onclick="startGame(100)">Hard</button>
+    </div>
+
+    <div id="game" style="display:none">
+        <div class="stats">
+            <span id="score">Score: 0</span>
+            <span id="status"></span>
+        </div>
+
+        <canvas id="c" width="300" height="300"></canvas>
+
+        <!-- Mobile Controls -->
+        <div class="controls">
+            <div></div>
+            <button class="but" onclick="setDir(0,-1)">⬆</button>
+            <div></div>
+            <button class="but" onclick="setDir(-1,0)">⬅</button>
+            <button class="but" onclick="setDir(0,1)">⬇</button>
+            <button class="but" onclick="setDir(1,0)">➡</button>
+        </div>
+
+        <div>
+            <button class="but" onclick="restart()">Restart</button>
+            <button class="but" onclick="home()">Home</button>
+        </div>
+    </div>
+
+    <div class="footer">this_is_naitik_gupta</div>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const statusEl = document.getElementById("status");
+
+let snake, food, dx, dy, score, loop;
+let speed = 150; // default (medium)
+
+function startGame(selectedSpeed){
+    speed = selectedSpeed;
+
+    title.style.display = "none";
+    how.style.display = "none";
+    difficulty.style.display = "none";
+    game.style.display = "block";
+
+    restart();
+}
+
+function restart(){
+    clearInterval(loop);
+    snake = [{x:5,y:5}];
+    dx = 1; dy = 0;
+    score = 0;
+    scoreEl.textContent = "Score: 0";
+    statusEl.textContent = "";
+    spawnFood();
+    loop = setInterval(update, speed);
+}
+
+function update(){
+    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+    // Wall collision
+    if(head.x < 0 || head.y < 0 || head.x >= 15 || head.y >= 15){
+        endGame();
+        return;
+    }
+
+    // Self collision
+    for(let s of snake){
+        if(s.x === head.x && s.y === head.y){
+            endGame();
+            return;
+        }
+    }
+
+    snake.unshift(head);
+
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        scoreEl.textContent = "Score: " + score;
+        spawnFood();
+    } else {
+        snake.pop();
+    }
+
+    draw();
+}
+
+function draw(){
+    ctx.clearRect(0,0,300,300);
+
+    ctx.fillStyle="#0f0";
+    snake.forEach(s=>{
+        ctx.fillRect(s.x*20, s.y*20, 18, 18);
+    });
+
+    ctx.fillStyle="red";
+    ctx.fillRect(food.x*20, food.y*20, 18, 18);
+}
+
+function spawnFood(){
+    food = {
+        x: Math.floor(Math.random()*15),
+        y: Math.floor(Math.random()*15)
+    };
+}
+
+function setDir(x,y){
+    dx = x; dy = y;
+}
+
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowUp") setDir(0,-1);
+    if(e.key==="ArrowDown") setDir(0,1);
+    if(e.key==="ArrowLeft") setDir(-1,0);
+    if(e.key==="ArrowRight") setDir(1,0);
+});
+
+function endGame(){
+    clearInterval(loop);
+    statusEl.textContent = "Game Over";
+}
+
+function home(){
+    location.href="../index.html";
+}
+</script>
+</body>
+</html>

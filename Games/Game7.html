@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match</title>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#1f4037,#99f2c8);
+    font-family:Arial, sans-serif;
+    color:#fff;
+}
+.container{
+    width:95%;
+    max-width:420px;
+    text-align:center;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+.card{
+    height:70px;
+    border-radius:10px;
+    background:#111;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+    cursor:pointer;
+    user-select:none;
+}
+.card.show{
+    background:#00e5ff;
+    color:#000;
+}
+.controls button{
+    margin:8px;
+    padding:8px 16px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+}
+.footer{
+    margin-top:15px;
+    font-size:12px;
+    opacity:.8;
+}
+.but{
+    padding:10px 22px;
+    margin:6px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(135deg,#ff9800,#ff5722);
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:.3s;
+}
+.but:hover{
+    transform:scale(1.05);
+    opacity:.9;
+}
+.but:active{
+    transform:scale(.95);
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title">Memory Match</h1>
+    <p id="how">Flip two cards. Match all pairs to win.</p>
+    <button class="but" id="startBtn">Start Game</button>
+
+    <div id="game" style="display:none">
+        <div class="grid" id="grid"></div>
+        <p id="status"></p>
+        <div class="controls">
+            <button class="but" onclick="restart()">Restart</button>
+            <button class="but" onclick="home()">Home</button>
+        </div>
+    </div>
+
+    <div class="footer">this_is_naitik_gupta</div>
+</div>
+
+<script>
+const symbols = ["🍎","🍌","🍇","🍓","🍒","🍍"];
+let cards = [];
+let first = null;
+let lock = false;
+let matched = 0;
+
+const grid = document.getElementById("grid");
+const statusText = document.getElementById("status");
+
+document.getElementById("startBtn").onclick = () => {
+    title.style.display = "none";
+    how.style.display = "none";
+    startBtn.style.display = "none";
+    game.style.display = "block";
+    restart();
+};
+
+function restart(){
+    grid.innerHTML = "";
+    statusText.textContent = "";
+    matched = 0;
+    first = null;
+    lock = false;
+
+    cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+
+    cards.forEach(symbol => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.dataset.symbol = symbol;
+        div.textContent = "?";
+        div.onclick = () => flip(div);
+        grid.appendChild(div);
+    });
+}
+
+function flip(card){
+    if(lock || card.classList.contains("show")) return;
+
+    card.classList.add("show");
+    card.textContent = card.dataset.symbol;
+
+    if(!first){
+        first = card;
+        return;
+    }
+
+    if(first.dataset.symbol === card.dataset.symbol){
+        matched += 2;
+        first = null;
+        if(matched === cards.length){
+            statusText.textContent = "You Win!";
+        }
+    } else {
+        lock = true;
+        setTimeout(() => {
+            first.classList.remove("show");
+            card.classList.remove("show");
+            first.textContent = "?";
+            card.textContent = "?";
+            first = null;
+            lock = false;
+        }, 700);
+    }
+}
+
+function home(){
+    location.href = "../index.html";
+}
+</script>
+</body>
+</html>

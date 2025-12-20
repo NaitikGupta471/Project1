@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumping Cube</title>
+    <style>
+        body {
+            margin: 0;
+            background: #282c34;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+            color: white;
+        }
+
+        #game {
+            position: relative;
+            width: 600px;
+            height: 300px;
+            background: #1c1f26;
+            border: 2px solid #fff;
+            overflow: hidden;
+        }
+
+        #cube {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            width: 40px;
+            height: 40px;
+            background: #61dafb;
+        }
+
+        .obstacle {
+            position: absolute;
+            bottom: 50px;
+            width: 15px;
+            height: 30px;
+            background: #ff4c4c;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game">
+        <div id="cube"></div>
+        <div id="score">Score: 0</div>
+    </div>
+
+    <script>
+        const cube = document.getElementById("cube");
+        const game = document.getElementById("game");
+        const scoreDisplay = document.getElementById("score");
+
+        let isJumping = false;
+        let position = 50;
+        let score = 0;
+        let gravity = 5;
+        let obstacleSpeed = 3;
+
+        // Jump function
+        function jump() {
+            if (isJumping) return;
+            isJumping = true;
+            let upInterval = setInterval(() => {
+                if (position >= 150) {
+                    clearInterval(upInterval);
+                    let downInterval = setInterval(() => {
+                        if (position <= 50) {
+                            clearInterval(downInterval);
+                            isJumping = false;
+                        }
+                        position -= gravity;
+                        cube.style.bottom = position + "px";
+                    }, 20);
+                } else {
+                    position += gravity;
+                    cube.style.bottom = position + "px";
+                }
+            }, 20);
+        }
+
+        // Listen for spacebar
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space") jump();
+        });
+
+        // Create obstacles
+        function createObstacle() {
+            const obstacle = document.createElement("div");
+            obstacle.classList.add("obstacle");
+            game.appendChild(obstacle);
+
+            let obstaclePos = game.offsetWidth;
+            obstacle.style.left = obstaclePos + "px";
+
+            const moveInterval = setInterval(() => {
+                obstaclePos -= obstacleSpeed;
+                obstacle.style.left = obstaclePos + "px";
+
+                // Collision detection
+                const cubeRect = cube.getBoundingClientRect();
+                const obsRect = obstacle.getBoundingClientRect();
+
+                if (
+                    cubeRect.right > obsRect.left &&
+                    cubeRect.left < obsRect.right &&
+                    cubeRect.bottom > obsRect.top &&
+                    cubeRect.top < obsRect.bottom
+                ) {
+                    location.reload();
+                }
+
+                // Remove obstacle if it goes off screen
+                if (obstaclePos < -30) {
+                    clearInterval(moveInterval);
+                    game.removeChild(obstacle);
+                    score++;
+                    scoreDisplay.textContent = "Score: " + score;
+                }
+            }, 20);
+
+            // Create next obstacle randomly
+            setTimeout(createObstacle, Math.random() * 2000 + 1000);
+        }
+
+        // Start game
+        createObstacle();
+    </script>
+
+</body>
+
+</html>

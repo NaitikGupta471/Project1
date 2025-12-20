@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon Says</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            color: #333;
+            background: linear-gradient(135deg, #ccefff, #ffe4e1, #fffacd, #e6e6fa);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        header {
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 9999;
+        }
+
+        .instructions {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        .difficulty {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty button,
+        #startBtn {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        .difficulty button:hover,
+        #startBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #startBtn {
+            display: none;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 150px);
+            grid-gap: 20px;
+            margin-top: 20px;
+        }
+
+        .simonBtn {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 10px #aaa;
+        }
+
+        .simonBtn.red {
+            background: #ff4b5c;
+        }
+
+        .simonBtn.green {
+            background: #4cd137;
+        }
+
+        .simonBtn.blue {
+            background: #1e90ff;
+        }
+
+        .simonBtn.yellow {
+            background: #f1c40f;
+        }
+
+        .simonBtn.active {
+            filter: brightness(1.5);
+        }
+
+        #levelDisplay {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+            box-shadow: 0 0 5px #aaa;
+        }
+
+        .controls button:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        a {
+            color: #ff6ec7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>Simon Says</header>
+
+    <div id="startScreen">
+        <div class="instructions">Repeat the color pattern!<br>Choose difficulty to start.</div>
+        <div class="difficulty">
+            <button onclick="selectDifficulty('easy')">Easy</button>
+            <button onclick="selectDifficulty('medium')">Medium</button>
+            <button onclick="selectDifficulty('hard')">Hard</button>
+        </div>
+        <button id="startBtn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameArea" style="display:none;">
+        <div id="levelDisplay">Level: 0</div>
+        <div id="buttons">
+            <div class="simonBtn red" onclick="playerClick('red')"></div>
+            <div class="simonBtn green" onclick="playerClick('green')"></div>
+            <div class="simonBtn blue" onclick="playerClick('blue')"></div>
+            <div class="simonBtn yellow" onclick="playerClick('yellow')"></div>
+        </div>
+        <div class="controls">
+            <button onclick="restartGame()">Restart Game</button>
+            <button onclick="backToHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <footer>
+        Follow me on Instagram: <a href="https://www.instagram.com/this_is_naitik_gupta"
+            target="_blank">@this_is_naitik_gupta</a>
+    </footer>
+
+    <script>
+        let difficulty = '';
+        let sequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let buttons = ['red', 'green', 'blue', 'yellow'];
+        let speed = 800; // default
+
+        function selectDifficulty(levelChoice) {
+            difficulty = levelChoice;
+            switch (difficulty) {
+                case 'easy': speed = 1000; break;
+                case 'medium': speed = 700; break;
+                case 'hard': speed = 400; break;
+            }
+            document.getElementById('startBtn').style.display = 'inline-block';
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            sequence = [];
+            playerSequence = [];
+            level = 0;
+            nextLevel();
+        }
+
+        function nextLevel() {
+            level++;
+            document.getElementById('levelDisplay').textContent = `Level: ${level}`;
+            playerSequence = [];
+            let nextColor = buttons[Math.floor(Math.random() * 4)];
+            sequence.push(nextColor);
+            showSequence();
+        }
+
+        function showSequence() {
+            let i = 0;
+            let interval = setInterval(() => {
+                if (i >= sequence.length) {
+                    clearInterval(interval);
+                    return;
+                }
+                highlight(sequence[i]);
+                i++;
+            }, speed);
+        }
+
+        function highlight(color) {
+            let btn = document.querySelector(`.simonBtn.${color}`);
+            btn.classList.add('active');
+            setTimeout(() => { btn.classList.remove('active'); }, speed / 2);
+        }
+
+        function playerClick(color) {
+            playerSequence.push(color);
+            highlight(color);
+            checkPlayer();
+        }
+
+        function checkPlayer() {
+            let lastIndex = playerSequence.length - 1;
+            if (playerSequence[lastIndex] !== sequence[lastIndex]) {
+                alert(`Game Over! Reached Level ${level}`);
+                restartGame();
+                return;
+            }
+            if (playerSequence.length === sequence.length) {
+                setTimeout(nextLevel, 500);
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('startBtn').style.display = 'none';
+        }
+
+        function backToHome() {
+            window.location.href = "../index.html";
+        }
+    </script>
+
+</body>
+
+</html>

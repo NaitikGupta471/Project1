@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breakout</title>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111;
+    font-family:Arial,sans-serif;
+    color:#fff;
+}
+.container{
+    width:95%;
+    max-width:420px;
+    text-align:center;
+}
+canvas{
+    background:#000;
+    border:2px solid #fff;
+    width:100%;
+    max-width:320px;
+}
+.stats{margin:8px 0}
+
+/* BUTTON */
+.but{
+    padding:10px 22px;
+    margin:6px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(135deg,#ff9800,#ff5722);
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+}
+.but:hover{transform:scale(1.05)}
+.footer{font-size:12px;margin-top:10px;opacity:.8}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1 id="title">Breakout</h1>
+    <p id="how">Break all bricks using the paddle.</p>
+
+    <div id="difficulty">
+        <button class="but" onclick="startGame('easy')">Easy</button>
+        <button class="but" onclick="startGame('medium')">Medium</button>
+        <button class="but" onclick="startGame('hard')">Hard</button>
+    </div>
+
+    <div id="game" style="display:none">
+        <div class="stats" id="status"></div>
+        <canvas id="c" width="320" height="240"></canvas>
+        <div>
+            <button class="but" onclick="restart()">Restart</button>
+            <button class="but" onclick="home()">Home</button>
+        </div>
+    </div>
+
+    <div class="footer">this_is_naitik_gupta</div>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const statusEl = document.getElementById("status");
+
+let ball, paddle, bricks, loop;
+let ballSpeed = 3;
+let paddleWidth = 60;
+
+function startGame(level){
+    if(level==="easy"){ ballSpeed=2; paddleWidth=90; }
+    if(level==="medium"){ ballSpeed=3; paddleWidth=70; }
+    if(level==="hard"){ ballSpeed=4; paddleWidth=50; }
+
+    title.style.display="none";
+    how.style.display="none";
+    difficulty.style.display="none";
+    game.style.display="block";
+
+    restart();
+}
+
+function restart(){
+    clearInterval(loop);
+
+    ball = { x:160, y:150, dx:ballSpeed, dy:-ballSpeed, r:5 };
+    paddle = { x:135, y:220, w:paddleWidth, h:8 };
+
+    bricks=[];
+    for(let r=0;r<3;r++){
+        for(let c=0;c<6;c++){
+            bricks.push({x:20+c*45,y:20+r*18,hit:false});
+        }
+    }
+
+    statusEl.textContent="";
+    loop=setInterval(update,16);
+}
+
+function update(){
+    ctx.clearRect(0,0,320,240);
+
+    // BALL
+    ctx.fillStyle="#fff";
+    ctx.beginPath();
+    ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
+    ctx.fill();
+
+    ball.x+=ball.dx;
+    ball.y+=ball.dy;
+
+    if(ball.x<ball.r||ball.x>320-ball.r) ball.dx*=-1;
+    if(ball.y<ball.r) ball.dy*=-1;
+
+    // PADDLE
+    if(ball.y+ball.r>=paddle.y &&
+       ball.x>=paddle.x &&
+       ball.x<=paddle.x+paddle.w){
+        ball.dy*=-1;
+    }
+
+    // BRICKS
+    ctx.fillStyle="#00e5ff";
+    bricks.forEach(b=>{
+        if(!b.hit &&
+           ball.x>b.x&&ball.x<b.x+40&&
+           ball.y>b.y&&ball.y<b.y+12){
+            b.hit=true;
+            ball.dy*=-1;
+        }
+        if(!b.hit){
+            ctx.fillRect(b.x,b.y,40,12);
+        }
+    });
+
+    // DRAW PADDLE
+    ctx.fillStyle="#ff9800";
+    ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
+
+    // KEEP PADDLE INSIDE
+    paddle.x=Math.max(0,Math.min(320-paddle.w,paddle.x));
+
+    // LOSE
+    if(ball.y>240){
+        endGame("Game Over");
+    }
+
+    // WIN
+    if(bricks.every(b=>b.hit)){
+        endGame("You Win!");
+    }
+}
+
+canvas.addEventListener("mousemove",e=>{
+    const r=canvas.getBoundingClientRect();
+    paddle.x=e.clientX-r.left-paddle.w/2;
+});
+canvas.addEventListener("touchmove",e=>{
+    const r=canvas.getBoundingClientRect();
+    paddle.x=e.touches[0].clientX-r.left-paddle.w/2;
+});
+
+function endGame(msg){
+    clearInterval(loop);
+    statusEl.textContent=msg;
+}
+
+function home(){
+    location.href="../index.html";
+}
+</script>
+</body>
+</html>

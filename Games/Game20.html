@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number – You Guess</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ccefff, #e0b0ff, #ffe4e1, #fffacd);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+
+        #startScreen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 50px;
+        }
+
+        .difficulty button,
+        #startBtn {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 0 8px #aaa;
+        }
+
+        .difficulty button:hover,
+        #startBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #startBtn {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #gameArea {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        #feedback {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        input[type=number] {
+            padding: 8px 12px;
+            font-size: 1em;
+            width: 80px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        button.controlBtn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 0 5px #aaa;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        button.controlBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #attemptsDisplay,
+        #timerDisplay {
+            font-size: 1.2em;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        a {
+            color: #ff6ec7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>Guess the Number – You Guess</header>
+
+    <div id="startScreen">
+        <div class="instructions">Computer has chosen a number between 1 and 100.<br>Choose difficulty to start
+            guessing:</div>
+        <div class="difficulty">
+            <button onclick="selectDifficulty('easy')">Easy</button>
+            <button onclick="selectDifficulty('medium')">Medium</button>
+            <button onclick="selectDifficulty('hard')">Hard</button>
+        </div>
+        <button id="startBtn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameArea">
+        <div id="feedback">Make your guess!</div>
+        <input type="number" id="playerGuess" min="1" max="100" placeholder="1-100">
+        <div>
+            <button class="controlBtn" onclick="checkGuess()">Guess</button>
+        </div>
+        <div id="attemptsDisplay">Attempts: 0</div>
+        <div id="timerDisplay">Time: 0s</div>
+        <div class="controls">
+            <button class="controlBtn" onclick="restartGame()">Restart Game</button>
+            <button class="controlBtn" onclick="backToHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <footer>
+        Follow me on Instagram: <a href="https://www.instagram.com/this_is_naitik_gupta"
+            target="_blank">@this_is_naitik_gupta</a>
+    </footer>
+
+    <script>
+        let difficulty = '';
+        let startBtn = document.getElementById('startBtn');
+        let gameArea = document.getElementById('gameArea');
+        let feedback = document.getElementById('feedback');
+        let playerGuess = document.getElementById('playerGuess');
+        let attemptsDisplay = document.getElementById('attemptsDisplay');
+        let timerDisplay = document.getElementById('timerDisplay');
+
+        let computerNumber = 0;
+        let attempts = 0;
+        let maxAttempts = Infinity;
+        let timeElapsed = 0;
+        let maxTime = Infinity;
+        let timerInterval;
+
+        function selectDifficulty(level) {
+            difficulty = level;
+            startBtn.style.display = 'inline-block';
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameArea.style.display = 'flex';
+            computerNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            timeElapsed = 0;
+            attemptsDisplay.textContent = `Attempts: ${attempts}`;
+            timerDisplay.textContent = `Time: ${timeElapsed}s`;
+            feedback.textContent = 'Make your guess!';
+            playerGuess.value = '';
+
+            // set difficulty limits
+            switch (difficulty) {
+                case 'easy': maxAttempts = Infinity; maxTime = Infinity; break;
+                case 'medium': maxAttempts = 12; maxTime = 60; break;
+                case 'hard': maxAttempts = 7; maxTime = 30; break;
+            }
+
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                timerDisplay.textContent = `Time: ${timeElapsed}s`;
+                if (timeElapsed >= maxTime && maxTime !== Infinity) {
+                    clearInterval(timerInterval);
+                    alert(`Time's up! Game Over. Number was ${computerNumber}`);
+                    restartGame();
+                }
+            }, 1000);
+        }
+
+        function checkGuess() {
+            let guess = parseInt(playerGuess.value);
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                alert('Enter a valid number 1-100');
+                return;
+            }
+            attempts++;
+            attemptsDisplay.textContent = `Attempts: ${attempts}`;
+            if (attempts > maxAttempts) {
+                alert(`Maximum attempts reached! Game Over. Number was ${computerNumber}`);
+                clearInterval(timerInterval);
+                restartGame();
+                return;
+            }
+
+            if (guess < computerNumber) {
+                feedback.textContent = 'Too Low ⬆';
+            } else if (guess > computerNumber) {
+                feedback.textContent = 'Too High ⬇';
+            } else {
+                feedback.textContent = `Correct! 🎉 Number was ${computerNumber}`;
+                clearInterval(timerInterval);
+                setTimeout(() => alert(`You guessed it in ${attempts} attempts and ${timeElapsed} seconds!`), 100);
+            }
+            playerGuess.value = '';
+        }
+
+        function restartGame() {
+            clearInterval(timerInterval);
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            startBtn.style.display = 'none';
+        }
+
+        function backToHome() { window.location.href = "../index.html"; }
+    </script>
+
+</body>
+
+</html>
